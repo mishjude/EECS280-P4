@@ -15,6 +15,29 @@ template <typename T>
 class List {
   //OVERVIEW: a doubly-linked, double-ended list with Iterator interface
 public:
+  //default constructor 
+  List() : first(nullptr), last(nullptr) {}
+
+  //destructor 
+  ~List(){
+    clear();
+  }
+
+  //copy constructor 
+  List(const List &copy) : first(nullptr), last(nullptr) {
+    copy_all(copy);
+  }
+
+  //overloaded assignment operator
+  List &operator=(const List &second_list) {
+    if (this == &second_list) {
+      return *this;
+    } else {
+      clear();
+      copy_all(second_list);
+      return *this;
+    } 
+  }
 
   //EFFECTS:  returns true if the list is empty
   bool empty() const{
