@@ -47,7 +47,7 @@ public:
   //EFFECTS: returns the number of elements in this List
   //HINT:    Traversing a list is really slow.  Instead, keep track of the size
   //         with a private member variable.  That's how std::list does it.
-  int size() const; {
+  int size() const {
     int list_size = 0;
     for (Node *node_ptr = first; node_ptr; node_ptr = node_ptr->next) {
       list_size +=1;
@@ -93,7 +93,7 @@ public:
   void pop_front(){
     assert(!empty());
     first = first->next;
-    first->prev = NULL;
+    first->prev = nullptr;
   }
 
   //REQUIRES: list is not empty
@@ -102,7 +102,7 @@ public:
   void pop_back(){
     assert(!empty());
     last = last->prev;
-    last->next = NULL;
+    last->next = nullptr;
   }
 
   //MODIFIES: may invalidate list iterators
@@ -129,8 +129,9 @@ private:
   //REQUIRES: list is empty
   //EFFECTS:  copies all nodes from other to this
   void copy_all(const List<T> &other){
-    for (Node *new = other->first; new != NULL; new->next) {
-      push_back(new->datum);
+    Node *new_node = new Node;
+    for (new_node = other.first; new_node != nullptr; new_node++) {
+      push_back(new_node->datum);
     }
   }
 
@@ -151,6 +152,33 @@ public:
     // ++ (prefix), default constructor, == and !=.
 
   public:
+    //default constructor 
+    Iterator() {}
+
+    //overloaded assignment operators
+    //operator ++
+    Iterator &operator++() {
+      assert(node_ptr);
+      node_ptr = node_ptr->next;
+      return *this;
+    }
+
+    //operator ==
+    bool operator==(Iterator right) const {
+      return node_ptr == right.node_ptr;
+    }
+
+    //operator !=
+    bool operator!=(Iterator right) const {
+      return node_ptr != right.node_ptr;
+    }
+
+    //operator *
+    T &operator*() const {
+      assert(node_ptr != nullptr);
+      return node_ptr->datum;
+    }
+
     // This operator will be used to test your code. Do not modify it.
     // Requires that the current element is dereferenceable.
     Iterator& operator--() {
@@ -164,9 +192,11 @@ public:
     // add any additional necessary member variables here
 
     // add any friend declarations here
+    friend class List;
 
     // construct an Iterator at a specific position
-    Iterator(Node *p);
+    Iterator(Node *p) : node_ptr(p) {} //changed this but i'm not sure if that was okay?? 
+    //wasn't compiling when i put this up higher in the public section
 
   };//List::Iterator
   ////////////////////////////////////////
@@ -177,17 +207,43 @@ public:
   }
 
   // return an Iterator pointing to "past the end"
-  Iterator end() const;
+  Iterator end() const {
+    return Iterator(last + 1); //?
+  }
 
   //REQUIRES: i is a valid, dereferenceable iterator associated with this list
   //MODIFIES: may invalidate other list iterators
   //EFFECTS: Removes a single element from the list container
-  void erase(Iterator i);
+  void erase(Iterator i) {
+    if (i.node_ptr == first) {
+      first = (i.node_ptr)->next;
+    }
+
+    if ((i.node_ptr)->next != nullptr) {
+      (i.node_ptr)->prev = i.node_ptr;
+    }
+
+    if ((i.node_ptr)->prev != nullptr) {
+      (i.node_ptr)->next = i.node_ptr;
+    }
+  }
 
   //REQUIRES: i is a valid iterator associated with this list
   //EFFECTS: inserts datum before the element at the specified position.
-  void insert(Iterator i, const T &datum);
-
+  void insert(Iterator i, const T &datum){
+    if (i.node_ptr != nullptr) {
+      Node *new_node = new Node;
+      new_node->datum = datum;
+      new_node->prev = i.node_ptr->prev;
+      i.node_ptr->prev = new_node;
+      new_node->next = i.node_ptr;
+      if (new_node->prev != nullptr) {
+        new_node->prev = new_node;
+      } else {
+        first = new_node;
+      }
+    }
+  }
 };//List
 
 
