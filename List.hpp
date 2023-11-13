@@ -72,10 +72,17 @@ public:
   //EFFECTS:  inserts datum into the front of the list
   void push_front(const T &datum){
     Node *new_first = new Node;
-    new_first->next = first;
     new_first->datum = datum;
-    first = new_first;
-    delete new_first;
+    new_first->prev = nullptr;
+    new_first->next = first;
+
+    if (first == nullptr) {
+      first = new_first;
+      last = new_first;
+    } else {
+      first->prev = new_first;
+      first = new_first;
+    }
   }
 
   //EFFECTS:  inserts datum into the back of the list
@@ -92,8 +99,19 @@ public:
   //EFFECTS:  removes the item at the front of the list
   void pop_front(){
     assert(!empty());
-    first = first->next;
-    first->prev = nullptr;
+    if (first == last) {
+      Node *new_node = new Node;
+      new_node = first;
+      first = nullptr;
+      last = nullptr;
+      delete new_node;
+    } else {
+      Node *new_node = new Node;
+      new_node = first;
+      first = first->next;
+      first->prev = nullptr;
+      delete new_node;
+    }
   }
 
   //REQUIRES: list is not empty
@@ -101,8 +119,19 @@ public:
   //EFFECTS:  removes the item at the back of the list
   void pop_back(){
     assert(!empty());
-    last = last->prev;
-    last->next = nullptr;
+    if (first == last) {
+      Node *new_node = new Node;
+      new_node = first;
+      first = nullptr;
+      last = nullptr;
+      delete new_node;
+    } else {
+      Node *new_node = new Node;
+      new_node = last;
+      last = last->prev;
+      last->next = nullptr;
+      delete new_node;
+    }
   }
 
   //MODIFIES: may invalidate list iterators
