@@ -89,9 +89,17 @@ public:
   void push_back(const T &datum){
     Node *new_last = new Node;
     new_last->datum = datum;
-    new_last->next = last;
-    last = new_last;
-    delete new_last;
+    new_last->prev = last;
+    new_last->next = nullptr;
+    
+
+    if (first == nullptr) {
+      first = new_last;
+      last = new_last;
+    } else {
+      last->next = new_last;
+      last = new_last;
+    }
   }
 
   //REQUIRES: list is not empty

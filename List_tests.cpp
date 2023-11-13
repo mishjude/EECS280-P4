@@ -55,4 +55,12 @@ TEST(test_push_front) {
     list.push_front(3);
     ASSERT_EQUAL(list.front(), 3);
 }
+
+TEST(test_push_back) {
+    List<int> list;
+    list.push_back(1);
+    list.push_back(7);
+    list.push_back(3);
+    ASSERT_EQUAL(list.back(), 3);
+}
 TEST_MAIN()
