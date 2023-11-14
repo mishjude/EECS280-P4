@@ -83,6 +83,7 @@ public:
       first->prev = new_first;
       first = new_first;
     }
+    ++len;
   }
 
   //EFFECTS:  inserts datum into the back of the list
@@ -100,6 +101,7 @@ public:
       last->next = new_last;
       last = new_last;
     }
+    ++len;
   }
 
   //REQUIRES: list is not empty
