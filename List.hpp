@@ -16,7 +16,7 @@ class List {
   //OVERVIEW: a doubly-linked, double-ended list with Iterator interface
 public:
   //default constructor 
-  List() : first(nullptr), last(nullptr) {}
+  List() : first(nullptr), last(nullptr), len(0){}
 
   //destructor 
   ~List(){
@@ -105,41 +105,34 @@ public:
   //REQUIRES: list is not empty
   //MODIFIES: may invalidate list iterators
   //EFFECTS:  removes the item at the front of the list
-  void pop_front(){
+ void pop_front(){
     assert(!empty());
-    if (first == last) {
-      Node *new_node = new Node;
-      new_node = first;
-      first = nullptr;
-      last = nullptr;
-      delete new_node;
-    } else {
-      Node *new_node = new Node;
-      new_node = first;
-      first = first->next;
+    Node* temp = first;
+    first = first->next;
+    if (first) {
       first->prev = nullptr;
-      delete new_node;
+    } else {  //1 elem left in list
+      last = first = nullptr;
     }
+    delete temp;
+    --len;
+    
   }
 
   //REQUIRES: list is not empty
   //MODIFIES: may invalidate list iterators
   //EFFECTS:  removes the item at the back of the list
-  void pop_back(){
+void pop_back(){
     assert(!empty());
-    if (first == last) {
-      Node *new_node = new Node;
-      new_node = first;
-      first = nullptr;
-      last = nullptr;
-      delete new_node;
-    } else {
-      Node *new_node = new Node;
-      new_node = last;
-      last = last->prev;
+    Node *temp = last;
+    last = last->prev;
+    if (last) {
       last->next = nullptr;
-      delete new_node;
+    } else {    //for 1 elem lists
+      first = last = nullptr; 
     }
+    delete temp;
+    --len;
   }
 
   //MODIFIES: may invalidate list iterators
@@ -174,6 +167,7 @@ private:
 
   Node *first;   // points to first Node in list, or nullptr if list is empty
   Node *last;    // points to last Node in list, or nullptr if list is empty
+  int len;       //keeping track of list size(prob wont change size()function tho)
 
 public:
   ////////////////////////////////////////
