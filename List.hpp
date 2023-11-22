@@ -16,7 +16,7 @@ class List {
   //OVERVIEW: a doubly-linked, double-ended list with Iterator interface
 public:
   //default constructor 
-  List() : first(nullptr), last(nullptr), len(0){}
+  List() : first(nullptr), last(nullptr) {}
 
   //destructor 
   ~List(){
@@ -71,10 +71,11 @@ public:
 
   //EFFECTS:  inserts datum into the front of the list
   void push_front(const T &datum){
-    Node *new_first = new Node;
+    Node *new_first = new Node{};
     new_first->datum = datum;
     new_first->prev = nullptr;
     new_first->next = first;
+    
 
     if (first == nullptr) {
       first = new_first;
@@ -82,60 +83,78 @@ public:
     } else {
       first->prev = new_first;
       first = new_first;
+      
     }
-    ++len;
-  }
+  } 
+
 
   //EFFECTS:  inserts datum into the back of the list
   void push_back(const T &datum){
-    Node *new_last = new Node;
+    
+    Node *new_last = new Node{};
     new_last->datum = datum;
     new_last->prev = last;
     new_last->next = nullptr;
     
-
+    
     if (first == nullptr) {
       first = new_last;
       last = new_last;
+
     } else {
       last->next = new_last;
       last = new_last;
     }
-    ++len;
+    
   }
 
   //REQUIRES: list is not empty
   //MODIFIES: may invalidate list iterators
   //EFFECTS:  removes the item at the front of the list
- void pop_front(){
+  void pop_front(){
     assert(!empty());
-    Node* temp = first;
-    first = first->next;
-    if (first) {
+    if (first == last) {
+      //Node *new_node = new Node;
+      //new_node = first;
+      delete first;
+      first = nullptr;
+      last = nullptr;
+      //delete new_node;
+    } else {
+      Node *new_node = first;
+      //new_node = first;
+      first = first->next;
       first->prev = nullptr;
-    } else {  //1 elem left in list
-      last = first = nullptr;
+      delete new_node;
+      new_node = nullptr;
     }
-    delete temp;
-    --len;
     
   }
 
   //REQUIRES: list is not empty
   //MODIFIES: may invalidate list iterators
   //EFFECTS:  removes the item at the back of the list
-void pop_back(){
+  void pop_back(){
     assert(!empty());
-    Node *temp = last;
-    last = last->prev;
-    if (last) {
+    if (first == last) {
+      //Node *new_node = new Node{};
+      //new_node = first;
+      delete first;
+      first = nullptr;
+      last = nullptr;
+      //delete new_node;
+    } else {
+      Node *new_node = last;
+      //new_node = last;
+      last = last->prev;
       last->next = nullptr;
-    } else {    //for 1 elem lists
-      first = last = nullptr; 
+      delete new_node;
+      new_node = nullptr;
     }
-    delete temp;
-    --len;
+    
   }
+
+  
 
   //MODIFIES: may invalidate list iterators
   //EFFECTS:  removes all items from the lists
@@ -161,15 +180,16 @@ private:
   //REQUIRES: list is empty
   //EFFECTS:  copies all nodes from other to this
   void copy_all(const List<T> &other){
-    Node *new_node = new Node;
+    Node *new_node = new Node{};
     for (new_node = other.first; new_node != nullptr; new_node++) {
       push_back(new_node->datum);
     }
+    
+    delete new_node;
   }
 
   Node *first;   // points to first Node in list, or nullptr if list is empty
   Node *last;    // points to last Node in list, or nullptr if list is empty
-  int len;       //keeping track of list size(prob wont change size()function tho)
 
 public:
   ////////////////////////////////////////
@@ -186,7 +206,7 @@ public:
 
   public:
     //default constructor 
-    Iterator() {}
+    
 
     //overloaded assignment operators
     //operator ++
@@ -214,7 +234,7 @@ public:
 
     // This operator will be used to test your code. Do not modify it.
     // Requires that the current element is dereferenceable.
-    Iterator& operator--() {
+    Iterator &operator--() {
       assert(node_ptr);
       node_ptr = node_ptr->prev;
       return *this;
@@ -230,6 +250,8 @@ public:
     // construct an Iterator at a specific position
     Iterator(Node *p) : node_ptr(p) {} //changed this but i'm not sure if that was okay?? 
     //wasn't compiling when i put this up higher in the public section
+    Iterator()  : node_ptr(nullptr){} // ctors should be private right???
+    
 
   };//List::Iterator
   ////////////////////////////////////////
@@ -241,24 +263,36 @@ public:
 
   // return an Iterator pointing to "past the end"
   Iterator end() const {
-    return Iterator(last + 1); //?
+    return Iterator(nullptr); 
   }
 
   //REQUIRES: i is a valid, dereferenceable iterator associated with this list
   //MODIFIES: may invalidate other list iterators
   //EFFECTS: Removes a single element from the list container
   void erase(Iterator i) {
+    
+    if (i.node_ptr == nullptr) {
+      return;
+    }
+    
     if (i.node_ptr == first) {
-      first = (i.node_ptr)->next;
+      first = i.node_ptr->next;
     }
 
-    if ((i.node_ptr)->next != nullptr) {
-      (i.node_ptr)->prev = i.node_ptr;
+    if (i.node_ptr == last) {
+      last = i.node_ptr->prev;
     }
 
-    if ((i.node_ptr)->prev != nullptr) {
-      (i.node_ptr)->next = i.node_ptr;
+    if (i.node_ptr->next != nullptr) {
+      i.node_ptr->next->prev = i.node_ptr->prev;
     }
+
+    if (i.node_ptr->prev != nullptr) {
+      i.node_ptr->prev->next = i.node_ptr->next;
+    }
+
+    delete i.node_ptr;
+
   }
 
   //REQUIRES: i is a valid iterator associated with this list
@@ -268,13 +302,13 @@ public:
       Node *new_node = new Node;
       new_node->datum = datum;
       new_node->prev = i.node_ptr->prev;
-      i.node_ptr->prev = new_node;
       new_node->next = i.node_ptr;
-      if (new_node->prev != nullptr) {
-        new_node->prev = new_node;
+      if (i.node_ptr->prev != nullptr) {
+        i.node_ptr->prev->next = new_node;
       } else {
         first = new_node;
       }
+      i.node_ptr->prev = new_node;
     }
   }
 };//List
